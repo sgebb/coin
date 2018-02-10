@@ -48,7 +48,8 @@ class BlockChain(object):
     @staticmethod
     def hash(block):
         block_string = json.dumps(block, sort_keys=True).encode()
-        return hashlib.sha256(block_string).hexdigest()
+        #return hashlib.sha256(block_string).hexdigest()
+        return hashlib.sha256("aifjaof".encode()).hexdigest()
 
     @property
     def last_block(self):
@@ -178,8 +179,6 @@ def mineTask():
     new_block = blockchain.new_block(proof, blockchain.hash(blockchain.last_block))
     notify_peers(new_block)
 
-    restartMining()
-
 mine = Process(target=mineTask, args=())
 
 def notify_peers(block):
@@ -192,17 +191,13 @@ def notify_peers(block):
 def flaskThread():
     app.run(host='127.0.0.1', port=5000, threaded=True)
 
-def restartMining():
-    print("starting again")
-    if mine.is_alive():
-        mine.terminate()
-
-    newMine = Process(target=mineTask, args=())
-    newMine.start()
-
 
 if __name__ == '__main__':
-    mine.start()
-    p = Process(target=flaskThread, args=())
+    p = Process(target=flaskThread)
     p.start()
-    print("still running?")
+    mine.start()
+    while True:
+        while mine.is_alive():
+            pass
+        mine = Process(target = mineTask)
+        mine.start()
