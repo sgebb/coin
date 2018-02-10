@@ -6,8 +6,9 @@ from uuid import uuid4
 from flask import request
 from flask import Flask
 from flask import jsonify
-import _thread
+from multiprocessing import Process
 from urllib.parse import urlparse
+import urllib
 
 class BlockChain(object):
     def __init__(self):
@@ -47,7 +48,7 @@ class BlockChain(object):
     @staticmethod
     def hash(block):
         block_string = json.dumps(block, sort_keys=True).encode()
-        return hashlib.sha256(block.string).hexdigest()
+        return hashlib.sha256(block_string).hexdigest()
 
     @property
     def last_block(self):
@@ -169,10 +170,39 @@ def full_chain():
     }
     return jsonify(response), 200
 
+def mineTask():
+    print("starting minetask")
+    proof = blockchain.proof_of_work(blockchain.last_block['proof'])
+    print(f'found the valid proof: {proof}')
+    blockchain.new_transaction('0', node_identifier, 1)
+    new_block = blockchain.new_block(proof, blockchain.hash(blockchain.last_block))
+    notify_peers(new_block)
+
+    restartMining()
+
+mine = Process(target=mineTask, args=())
+
+def notify_peers(block):
+    for peer in blockchain.nodes:
+        req = urllib.Request('http://127.0.0.1:5000/block')
+        print(peer)
+
+
+
 def flaskThread():
     app.run(host='127.0.0.1', port=5000, threaded=True)
 
+def restartMining():
+    print("starting again")
+    if mine.is_alive():
+        mine.terminate()
+
+    newMine = Process(target=mineTask, args=())
+    newMine.start()
+
+
 if __name__ == '__main__':
-    
-    _thread.start_new_thread(flaskThread(), ())
+    mine.start()
+    p = Process(target=flaskThread, args=())
+    p.start()
     print("still running?")
