@@ -187,14 +187,17 @@ def notify_peers(block):
         print(peer)
 
 
-
 def flaskThread():
     app.run(host='127.0.0.1', port=5000, threaded=True)
 
 
 if __name__ == '__main__':
+    
+    print("starting webapp")
     p = Process(target=flaskThread)
     p.start()
+
+    print("starting mining")
     mine.start()
     while True:
         while mine.is_alive():
