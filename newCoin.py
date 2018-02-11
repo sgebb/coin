@@ -1,7 +1,7 @@
 import hashlib
 import json
 import urllib
-from multiprocessing import Process
+from threading import Thread
 from time import time
 from urllib.parse import urlparse
 from uuid import uuid4
@@ -39,12 +39,17 @@ class BlockChain(object):
             'amount': amount,
         })
 
-        return len(self.chain)
+        return len(self.chain) +1
 
     def register_node(self, address):
         parsed_url = urlparse(address)
         self.nodes.add(parsed_url.netloc)
-    
+
+    def merge_transactions(self, transactions):
+        for transaction in transactions:
+            if not self.current_transactions.__contains__(transaction):
+                self.new_transaction(transaction['sender'], transaction['recipient'], transaction['amount'])
+
     @staticmethod
     def hash(block):
         block_string = json.dumps(block, sort_keys=True).encode()
@@ -75,7 +80,6 @@ class BlockChain(object):
 
         return True
 
-
     def resolve_conflict(self):
         neighbors = self.nodes
         new_chain = None
@@ -92,7 +96,7 @@ app = Flask(__name__)
 # Generate a globally unique address for this node
 node_identifier = str(uuid4()).replace('-', '')
 
-# Instantiate the Blockchai
+# Instantiate the Blockchain
 blockchain = BlockChain()
 
 @app.route('/block', methods=['POST'])
@@ -107,25 +111,21 @@ def block():
     for transaction in transactions:
         if not valid_transaction(transaction):
             transactions.remove(transaction)
-    
-    #only add valid transactions to the block
-    newBlock['transactions'] = transactions
-
 
     #make sure proof is valid before adding to chain
-    if(blockchain.valid_proof(last_proof, proof)):
-        previous_hash = blockchain.hash(last_block)
+    if valid_proof(last_proof, proof):
+        previous_hash = blockchain.hash(blockchain.last_block)
         blockchain.new_block(proof, previous_hash)
     else:
         return "Bad proof", 400
-    
 
+    blockchain.merge_transactions(transactions)
     block = blockchain.new_block(proof, previous_hash)
 
     response = {
         'message': "Block accepted",
         'index': block['index'],
-        'transactions':block['transactions'],
+        'transactions': block['transactions'],
         'proof': block['proof'],
         'previous_hash': block['previous_hash'],
     }
@@ -169,8 +169,7 @@ def minetask():
     return new_block
 
 
-global mine
-mine = Process(target=minetask)
+mine = Thread(target=minetask)
 
 
 def notify_peers(block):
@@ -194,18 +193,20 @@ def proof_of_work(last_proof):
 def valid_proof(last_proof, proof):
         guess = (f'{last_proof}{proof}').encode()
         guess_hash = hashlib.sha256(guess).hexdigest()
-        return guess_hash[:4] == "0000"
+        return guess_hash[:5] == "00000"
 
 
 if __name__ == '__main__':
     print("starting webapp")
-    p = Process(target=flaskthread)
+    p = Thread(target=flaskthread)
     p.start()
 
     print("starting mining")
+    mine.setDaemon(True)
     mine.start()
     while True:
         while mine.is_alive():
             pass
-        mine = Process(target=minetask)
+        mine = Thread(target=minetask)
+        mine.setDaemon(True)
         mine.start()
