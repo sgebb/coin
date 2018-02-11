@@ -1,14 +1,14 @@
 import hashlib
 import json
-from textwrap import dedent
+import urllib
+from multiprocessing import Process
 from time import time
+from urllib.parse import urlparse
 from uuid import uuid4
-from flask import request
 from flask import Flask
 from flask import jsonify
-from multiprocessing import Process
-from urllib.parse import urlparse
-import urllib
+from flask import request
+
 
 class BlockChain(object):
     def __init__(self):
@@ -48,25 +48,12 @@ class BlockChain(object):
     @staticmethod
     def hash(block):
         block_string = json.dumps(block, sort_keys=True).encode()
-        #return hashlib.sha256(block_string).hexdigest()
-        return hashlib.sha256("aifjaof".encode()).hexdigest()
+        return hashlib.sha256(block_string).hexdigest()
+        #return hashlib.sha256("aifjaof".encode()).hexdigest()
 
     @property
     def last_block(self):
         return self.chain[-1]
-
-    def proof_of_work(self, last_proof):
-        
-        proof = 0
-        while self.valid_proof(last_proof, proof) is False:
-            proof += 1
-        
-        return proof
-
-    def valid_proof(self, last_proof, proof):
-        guess = (f'{last_proof}{proof}').encode()
-        guess_hash = hashlib.sha256(guess).hexdigest()
-        return guess_hash[:4] == "0000"
     
     def valid_chain(self, chain):
         #check if given chain is valid
@@ -80,7 +67,7 @@ class BlockChain(object):
             if block['previous_hash'] != self.hash(last_block):
                 return False
             
-            if not self.valid_proof(last_block.proof, block['proof']):
+            if not valid_proof(last_block.proof, block['proof']):
                 return False
             
             last_block = block
@@ -88,15 +75,15 @@ class BlockChain(object):
 
         return True
 
-    
+
     def resolve_conflict(self):
-        
         neighbors = self.nodes
         new_chain = None
 
         max_length = len(self.chain)
 
-    def valid_transaction(self, transaction):
+
+def valid_transaction(transaction):
         return True
 
 # Instantiate node
@@ -105,7 +92,7 @@ app = Flask(__name__)
 # Generate a globally unique address for this node
 node_identifier = str(uuid4()).replace('-', '')
 
-# Instantiate the Blockchain
+# Instantiate the Blockchai
 blockchain = BlockChain()
 
 @app.route('/block', methods=['POST'])
@@ -118,7 +105,7 @@ def block():
     #making sure all transactions in block are valid
     transactions = newBlock['transactions']
     for transaction in transactions:
-        if not blockchain.valid_transaction(transaction):
+        if not valid_transaction(transaction):
             transactions.remove(transaction)
     
     #only add valid transactions to the block
@@ -171,15 +158,20 @@ def full_chain():
     }
     return jsonify(response), 200
 
-def mineTask():
+
+def minetask():
     print("starting minetask")
-    proof = blockchain.proof_of_work(blockchain.last_block['proof'])
+    proof = proof_of_work(blockchain.last_block['proof'])
     print(f'found the valid proof: {proof}')
     blockchain.new_transaction('0', node_identifier, 1)
     new_block = blockchain.new_block(proof, blockchain.hash(blockchain.last_block))
     notify_peers(new_block)
+    return new_block
 
-mine = Process(target=mineTask, args=())
+
+global mine
+mine = Process(target=minetask)
+
 
 def notify_peers(block):
     for peer in blockchain.nodes:
@@ -187,14 +179,27 @@ def notify_peers(block):
         print(peer)
 
 
-def flaskThread():
+def flaskthread():
     app.run(host='127.0.0.1', port=5000, threaded=True)
 
 
+def proof_of_work(last_proof):
+        proof = 0
+        while valid_proof(last_proof, proof) is False:
+            proof += 1
+
+        return proof
+
+
+def valid_proof(last_proof, proof):
+        guess = (f'{last_proof}{proof}').encode()
+        guess_hash = hashlib.sha256(guess).hexdigest()
+        return guess_hash[:4] == "0000"
+
+
 if __name__ == '__main__':
-    
     print("starting webapp")
-    p = Process(target=flaskThread)
+    p = Process(target=flaskthread)
     p.start()
 
     print("starting mining")
@@ -202,5 +207,5 @@ if __name__ == '__main__':
     while True:
         while mine.is_alive():
             pass
-        mine = Process(target = mineTask)
+        mine = Process(target=minetask)
         mine.start()
