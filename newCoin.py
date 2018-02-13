@@ -179,7 +179,7 @@ def notify_peers(block):
 
 
 def flaskthread():
-    app.run(host='127.0.0.1', port=5000, threaded=True)
+    app.run(host='127.0.0.1', port=5000)
 
 
 def proof_of_work(last_proof):
@@ -200,6 +200,7 @@ if __name__ == '__main__':
     print("starting webapp")
     p = Thread(target=flaskthread)
     p.start()
+    
 
     print("starting mining")
     mine.setDaemon(True)
