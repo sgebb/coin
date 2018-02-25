@@ -1,10 +1,8 @@
 import hashlib
 import json
-import urllib
 from threading import Thread
 from time import time
 from urllib.parse import urlparse
-from uuid import uuid4
 
 
 class BlockChain(object):
@@ -87,14 +85,14 @@ def minetask(blockchain, myAddress):
     blockchain.new_transaction('0', myAddress, 1)
     blockchain.new_block(proof, blockchain.hash(blockchain.last_block))
 
+shouldBeMining = True
 
 def proof_of_work(last_proof):
         proof = 0
-        while valid_proof(last_proof, proof) is False:
+        while (valid_proof(last_proof, proof) is False) and (shouldBeMining):
             proof += 1
 
         return proof
-
 
 def valid_proof(last_proof, proof):
         guess = (f'{last_proof}{proof}').encode()

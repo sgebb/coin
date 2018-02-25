@@ -3,11 +3,11 @@ import blockchain.server as server
 from threading import Thread
 import time
 
-blockchain = coinWithoutServer.BlockChain()
-server.blockchain = blockchain
-server.newBlockAppeared = False
-
 if __name__ == '__main__':
+    blockchain = coinWithoutServer.BlockChain()
+    server.blockchain = blockchain
+    server.newBlockAppeared = False
+
     print("starting webapp")
     p = Thread(target=server.flaskthread)
     p.start()
@@ -18,10 +18,11 @@ if __name__ == '__main__':
     mine.start()
 
     while True:
-        while not server.newBlockAppeared and mine.is_alive():
-            pass
+        while mine.is_alive():
+            if server.newBlockAppeared:
+                coinWithoutServer.shouldBeMining = False
+
         if server.newBlockAppeared:
-            mine._delete
             print("new block for sure")
             server.newBlockAppeared = False
             #start on new one

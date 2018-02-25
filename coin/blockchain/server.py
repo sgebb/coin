@@ -1,9 +1,6 @@
 import hashlib
-import json
 import urllib
 from threading import Thread
-from time import time
-from urllib.parse import urlparse
 from uuid import uuid4
 from flask import Flask
 from flask import jsonify
