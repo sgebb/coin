@@ -20,11 +20,14 @@ class BlockChain(object):
             'proof': proof,
             'previous_hash': previous_hash or self.hash(self.chain[-1])
         }
-
-        self.current_transactions = []
-        self.chain.append(block)
+        
+        self.add_block_to_chain(block)
 
         return block
+
+    def add_block_to_chain(self, block):
+        self.current_transactions = []
+        self.chain.append(block)
     
     def new_transaction(self, sender, recipient, amount):
         self.current_transactions.append({
@@ -80,18 +83,20 @@ class BlockChain(object):
 def minetask(blockchain, myAddress):
     print("starting minetask")
     proof = proof_of_work(blockchain.last_block['proof'])
-    print(f'found the valid proof: {proof}')
-
-    blockchain.new_transaction('0', myAddress, 1)
-    blockchain.new_block(proof, blockchain.hash(blockchain.last_block))
+    
+    if proof is not 0:
+        print(f'found the valid proof: {proof}')
+        blockchain.new_transaction('0', myAddress, 1)
+        blockchain.new_block(proof, blockchain.hash(blockchain.last_block))
 
 shouldBeMining = True
 
 def proof_of_work(last_proof):
         proof = 0
-        while (valid_proof(last_proof, proof) is False) and (shouldBeMining):
+        while valid_proof(last_proof, proof) is False:
+            if (shouldBeMining is False):
+                return 0
             proof += 1
-
         return proof
 
 def valid_proof(last_proof, proof):

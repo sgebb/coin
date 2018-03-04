@@ -25,14 +25,14 @@ def block():
             transactions.remove(transaction)
 
     #make sure proof is valid before adding to chain
-    if valid_proof(last_proof, proof):
-        previous_hash = blockchain.hash(blockchain.last_block)
-        blockchain.new_block(proof, previous_hash)
-    else:
+    if valid_proof(last_proof, proof) is False:
         return "Bad proof", 400
 
+    #accept new block
     blockchain.merge_transactions(transactions)
+    previous_hash = blockchain.hash(blockchain.last_block)
     block = blockchain.new_block(proof, previous_hash)
+
     newBlockAppeared = True
     response = {
         'message': "Block accepted",
