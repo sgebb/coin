@@ -7,7 +7,6 @@ if __name__ == '__main__':
     blockchain = coin.BlockChain()
     server.blockchain = blockchain
 
-    print("starting webapp")
     p = Thread(target=server.flaskthread)
     p.start()
     time.sleep(1)
@@ -26,7 +25,7 @@ if __name__ == '__main__':
                 coin.shouldBeMining = False
 
         if server.newBlockAppeared:
-            print("new block for sure")
+            blockchain.current_transactions = []
             #start on new one
 
         mine.join()

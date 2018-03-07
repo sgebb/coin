@@ -5,10 +5,12 @@ from uuid import uuid4
 from flask import Flask
 from flask import jsonify
 from flask import request
+from urllib.parse import urlparse
 
 # Instantiate node
 app = Flask(__name__)
 address = str(uuid4()).replace('-', '')
+nodes = set()
 
 @app.route('/block', methods=['POST'])
 def block():
@@ -44,7 +46,6 @@ def block():
 
     return jsonify(response), 200
 
-
 @app.route('/transactions', methods=['POST'])
 def new_transaction():
     values = request.get_json()
@@ -70,11 +71,27 @@ def full_chain():
     }
     return jsonify(response), 200
 
+#tar inn liste med noder - hver har addresse?
+@app.route('/nodes', methods=['POST'])
+def addNodes():
+    newNodes = request.get_json().get('nodes')
+    if newNodes is None:
+        return "Error - want list of nodes", 400
+
+    for node in newNodes:
+        register_node(node)
+    
+    response = {
+        'message': 'New nodes have been added',
+        'total_nodes': list(nodes),
+    }
+    return jsonify(response), 201
+
 
 def valid_proof(last_proof, proof):
-        guess = (f'{last_proof}{proof}').encode()
-        guess_hash = hashlib.sha256(guess).hexdigest()
-        return guess_hash[:5] == "00000"
+    guess = (f'{last_proof}{proof}').encode()
+    guess_hash = hashlib.sha256(guess).hexdigest()
+    return guess_hash[:5] == "00000"
 
 
 def resolve_conflict(self):
@@ -85,14 +102,23 @@ def resolve_conflict(self):
     max_length = len(self.chain)
 
 def notify_peers(block):
-    for peer in blockchain.nodes:
-        req = urllib.Request('http://127.0.0.1:5000/block')
-        print(peer)
+    for peer in nodes:
+        response = requests.POST(f'http://{peer}/chain')
+
+        if response.status_code == 200:
+                length = response.json()['length']
+                chain = response.json()['chain']
 
 
 def flaskthread():
-    print("starting webapp2")
+    print("starting webapp")
     app.run(host='127.0.0.1', port=5000, threaded=True)
+
+
+
+def register_node(address):
+    parsed_url = urlparse(address)
+    nodes.add(parsed_url.netloc)
 
 
 if __name__ == '__main__':

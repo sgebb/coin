@@ -2,14 +2,12 @@ import hashlib
 import json
 from threading import Thread
 from time import time
-from urllib.parse import urlparse
 
 
 class BlockChain(object):
     def __init__(self):
         self.chain = []
-        self.current_transactions = []
-        self.nodes = set()
+        self.clear_current_transactions()
         self.new_block(previous_hash=1, proof=100)
     
     def new_block(self, proof, previous_hash=None):
@@ -18,7 +16,7 @@ class BlockChain(object):
             'timestamp': time(),
             'transactions': self.current_transactions,
             'proof': proof,
-            'previous_hash': previous_hash or self.hash(self.chain[-1])
+            'previous_hash': previous_hash or hash(self.chain[-1])
         }
         
         self.add_block_to_chain(block)
@@ -26,9 +24,12 @@ class BlockChain(object):
         return block
 
     def add_block_to_chain(self, block):
-        self.current_transactions = []
         self.chain.append(block)
+        self.clear_current_transactions()
     
+    def clear_current_transactions(self):
+        self.current_transactions = []
+
     def new_transaction(self, sender, recipient, amount):
         self.current_transactions.append({
             'sender': sender,
@@ -38,44 +39,38 @@ class BlockChain(object):
 
         return len(self.chain) +1
 
-    def register_node(self, address):
-        parsed_url = urlparse(address)
-        self.nodes.add(parsed_url.netloc)
-
     def merge_transactions(self, transactions):
         for transaction in transactions:
             if not self.current_transactions.__contains__(transaction):
                 self.new_transaction(transaction['sender'], transaction['recipient'], transaction['amount'])
 
-    @staticmethod
-    def hash(block):
-        block_string = json.dumps(block, sort_keys=True).encode()
-        return hashlib.sha256(block_string).hexdigest()
-        #return hashlib.sha256("aifjaof".encode()).hexdigest()
-
     @property
     def last_block(self):
         return self.chain[-1]
-    
-    def valid_chain(self, chain):
-        #check if given chain is valid
-        last_block = chain[0]
-        current_index = 1
 
-        while current_index < len(chain):
-            block = chain[current_index]
-            print(f'{last_block}')
-            print(f'{block}')
-            if block['previous_hash'] != self.hash(last_block):
-                return False
-            
-            if not valid_proof(last_block.proof, block['proof']):
-                return False
-            
-            last_block = block
-            current_index += 1
+def hash(block):
+    block_string = json.dumps(block, sort_keys=True).encode()
+    return hashlib.sha256(block_string).hexdigest()
 
-        return True
+def valid_chain(chain):
+    #check if given chain is valid
+    last_block = chain[0]
+    current_index = 1
+
+    while current_index < len(chain):
+        block = chain[current_index]
+        print(f'{last_block}')
+        print(f'{block}')
+        if block['previous_hash'] != hash(last_block):
+            return False
+        
+        if not valid_proof(last_block.proof, block['proof']):
+            return False
+        
+        last_block = block
+        current_index += 1
+
+    return True
 
     def valid_transaction(self, transaction):
         return True
@@ -87,7 +82,7 @@ def minetask(blockchain, myAddress):
     if proof is not 0:
         print(f'found the valid proof: {proof}')
         blockchain.new_transaction('0', myAddress, 1)
-        blockchain.new_block(proof, blockchain.hash(blockchain.last_block))
+        blockchain.new_block(proof, hash(blockchain.last_block))
 
 shouldBeMining = True
 
