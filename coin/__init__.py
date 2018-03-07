@@ -1,10 +1,10 @@
-import blockchain.coinWithoutServer as coinWithoutServer
+import blockchain.coin as coin
 import blockchain.server as server
 from threading import Thread
 import time
 
 if __name__ == '__main__':
-    blockchain = coinWithoutServer.BlockChain()
+    blockchain = coin.BlockChain()
     server.blockchain = blockchain
 
     print("starting webapp")
@@ -14,16 +14,16 @@ if __name__ == '__main__':
 
     while True:
         #setup
-        coinWithoutServer.shouldBeMining = True
+        coin.shouldBeMining = True
         server.newBlockAppeared = False
 
-        mine = Thread(target=coinWithoutServer.minetask, args=(blockchain,server.address))
+        mine = Thread(target=coin.minetask, args=(blockchain,server.address))
         mine.setDaemon(True)
         mine.start()
 
         while mine.is_alive():
             if server.newBlockAppeared:
-                coinWithoutServer.shouldBeMining = False
+                coin.shouldBeMining = False
 
         if server.newBlockAppeared:
             print("new block for sure")
