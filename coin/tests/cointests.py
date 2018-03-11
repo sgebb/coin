@@ -1,26 +1,21 @@
 import unittest
-import blockchain.coinWithoutServer as coinWithoutServer
-
-class TestStringMethods(unittest.TestCase):
-
-    def test_upper(self):
-        self.assertEqual('foo'.upper(), 'FOO')
+import blockchain.coin as coin
 
 class TestCoinMethods(unittest.TestCase):
 
     def setUp(self):
-        self.coin = coinWithoutServer.BlockChain()
+        self.coin = coin.BlockChain()
 
 class ProofTests(unittest.TestCase):
 
     def test_valid_proof_genesisProofValid(self):
-        self.assertTrue(coinWithoutServer.valid_proof(0, 610536))
+        self.assertTrue(coin.valid_proof(0, 610536))
 
     def test_valid_proof_genesisProofInvalid(self):
-        self.assertFalse(coinWithoutServer.valid_proof(0, 3511515))
+        self.assertFalse(coin.valid_proof(0, 3511515))
 
     def test_proof_of_work_genesis(self):
-        self.assertEqual(coinWithoutServer.proof_of_work(0), 610536)
+        self.assertEqual(coin.proof_of_work(0), 610536)
 
 
 if __name__ == '__main__':

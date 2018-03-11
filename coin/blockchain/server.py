@@ -1,5 +1,5 @@
 import hashlib
-import urllib
+import blockchain.coin as coin
 from threading import Thread
 from uuid import uuid4
 from flask import Flask
@@ -31,17 +31,15 @@ def block():
         return "Bad proof", 400
 
     #accept new block
-    blockchain.merge_transactions(transactions)
-    previous_hash = blockchain.hash(blockchain.last_block)
-    block = blockchain.new_block(proof, previous_hash)
+    blockchain.add_block_to_chain(newBlock)
 
     newBlockAppeared = True
     response = {
         'message': "Block accepted",
-        'index': block['index'],
-        'transactions': block['transactions'],
-        'proof': block['proof'],
-        'previous_hash': block['previous_hash'],
+        'index': newBlock['index'],
+        'transactions': newBlock['transactions'],
+        'proof': newBlock['proof'],
+        'previous_hash': newBlock['previous_hash'],
     }
 
     return jsonify(response), 200
@@ -70,6 +68,20 @@ def full_chain():
         'length': len(blockchain.chain),
     }
     return jsonify(response), 200
+
+@app.route('/chain', methods=['POST'])
+def replace_chain():
+    newChain = request.get_json()
+
+    if newChain[0] is not blockchain.chain:
+        return "Wrong genesis", 400
+    if len(newChain) <= len(blockchain.chain):
+        return "Already have a longer or equal length chain", 400
+    if not coin.valid_chain(newChain):
+        return "Proposed chain not valid", 400
+
+    blockchain.chain = newChain
+    return "Chain accepted", 200
 
 #tar inn liste med noder - hver har addresse?
 @app.route('/nodes', methods=['POST'])

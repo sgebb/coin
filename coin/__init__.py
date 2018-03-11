@@ -15,6 +15,7 @@ if __name__ == '__main__':
         #setup
         coin.shouldBeMining = True
         server.newBlockAppeared = False
+        server.newChainAppeared = False
 
         mine = Thread(target=coin.minetask, args=(blockchain,server.address))
         mine.setDaemon(True)
@@ -23,9 +24,6 @@ if __name__ == '__main__':
         while mine.is_alive():
             if server.newBlockAppeared:
                 coin.shouldBeMining = False
-
-        if server.newBlockAppeared:
-            blockchain.current_transactions = []
-            #start on new one
-
-        mine.join()
+            if server.newChainAppeared:
+                coin.shouldBeMining = False
+                blockchain = server.blockchain
