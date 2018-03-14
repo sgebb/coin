@@ -120,11 +120,6 @@ def notify_peers(block):
     for peer in nodes:
         response = requests.POST(f'http://{peer}/chain')
 
-        if response.status_code == 200:
-                length = response.json()['length']
-                chain = response.json()['chain']
-
-
 def flaskthread():
     print("starting webapp")
     app.run(host='127.0.0.1', port=5000, threaded=True)

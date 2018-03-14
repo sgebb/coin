@@ -4,12 +4,15 @@ TODO:
 - Integrasjonstester, tester av blockchain-logikken. Test av "valid transaction" osv
 - Sørge for at trådene dør
 - Støtte flere noder
+- Ha en nodeaddresse hardkodet inn (eller param).
+- Spre nodeliste til nettverket gradvis, og fjern de som er døde
 
 - Validere transaksjoner (ikke bare true)
 - Consensus-algorithm
 - Når er en transaksjon OK
     - Må bevise at den som sender transaksjonen = Sender
     - Må sjekke at sender har penger på sin konto.
+    - Unngår doublespend ved å sjekke hver transaksjon
 - Når forkaster man egen CHain
     - Noen poster en chain som er lenger enn sin egen
     - OG genesis blocken er den samme?
@@ -23,20 +26,20 @@ Engangspassord, sjekke om større, return true eller false, må ha nytt signert 
 
 Hva er blockchain
 	Kjede med blocks
-	Transaksjon: {avsender: "meg", mottaker: "deg", mengde: 10, timestamp: now}
-	Block: {transaksjoner: [], index: 10, timestamp: now, proof: "LANG STRING", previous_hash: "hash"}
+	Block: {transaksjoner[], index, timestamp, proof, previous_hash}
+	Transaksjon: {avsender, mottaker, mengde, timestamp}
 
 
 Hva får man med blockchain
-	Immutabilitet - umulig å endre historikk
-	Distribuert - ingen server
+	-Immutabilitet - umulig å endre historikk
+	-Distribuert - ingen server
+    -Trustless
 
 Hva trenger man for å lage en minimal blockchain
-	En definisjon av en block
-	En genesis-block
-    En oppgave å løse (POW) og en belønning
-	En consensus-algoritme
+	-En definisjon av en block
+	-En genesis-block
+    -En oppgave å løse (POW) og en belønning
+	-En consensus-algoritme
 
 Valg
     Den som forger må si ifra til alle andre
-    
