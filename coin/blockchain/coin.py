@@ -13,7 +13,7 @@ class BlockChain(object):
     def new_block(self, proof, previous_hash=None):
         block = {
             'index': len(self.chain) + 1,
-            'timestamp': time(),
+            'timestamp': 0,
             'transactions': self.current_transactions,
             'proof': proof,
             'previous_hash': previous_hash or hash(self.chain[-1])
@@ -38,15 +38,17 @@ class BlockChain(object):
         })
 
         return len(self.chain) +1
-
-    def merge_transactions(self, transactions):
-        for transaction in transactions:
-            if not self.current_transactions.__contains__(transaction):
-                self.new_transaction(transaction['sender'], transaction['recipient'], transaction['amount'])
+    
+    def valid_transaction(self, transaction):
+        return True
 
     @property
     def last_block(self):
         return self.chain[-1]
+
+    @property
+    def genesis(self):
+        return self.chain[0]
 
 def hash(block):
     block_string = json.dumps(block, sort_keys=True).encode()
@@ -64,16 +66,13 @@ def valid_chain(chain):
         if block['previous_hash'] != hash(last_block):
             return False
         
-        if not valid_proof(last_block.proof, block['proof']):
+        if not valid_proof(last_block['proof'], block['proof']):
             return False
         
         last_block = block
         current_index += 1
 
     return True
-
-    def valid_transaction(self, transaction):
-        return True
 
 def minetask(blockchain, myAddress):
     print("starting minetask")
@@ -84,15 +83,14 @@ def minetask(blockchain, myAddress):
         blockchain.new_transaction('0', myAddress, 1)
         blockchain.new_block(proof, hash(blockchain.last_block))
 
-shouldBeMining = True
-
 def proof_of_work(last_proof):
-        proof = 0
-        while valid_proof(last_proof, proof) is False:
-            if (shouldBeMining is False):
-                return 0
-            proof += 1
-        return proof
+    global shouldBeMining
+    proof = 0
+    while valid_proof(last_proof, proof) is False:
+        if (shouldBeMining is False):
+            return 0
+        proof += 1
+    return proof
 
 def valid_proof(last_proof, proof):
         guess = (f'{last_proof}{proof}').encode()

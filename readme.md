@@ -17,3 +17,26 @@ TODO:
 
 Real usecase: Kan man gjøre finansieringsbevis/lån-godtatt på kjeden? Verifikasjon av en sum over X uten å avsløre hvor mye?
 Engangspassord, sjekke om større, return true eller false, må ha nytt signert passord for hver sjekk. Banken legger inn hvor mye penger du har, du lager engangspassord for å sjekke likviditet. Varighet på finansieringsbevis fram til X dager?
+
+
+#Presentere:
+
+Hva er blockchain
+	Kjede med blocks
+	Transaksjon: {avsender: "meg", mottaker: "deg", mengde: 10, timestamp: now}
+	Block: {transaksjoner: [], index: 10, timestamp: now, proof: "LANG STRING", previous_hash: "hash"}
+
+
+Hva får man med blockchain
+	Immutabilitet - umulig å endre historikk
+	Distribuert - ingen server
+
+Hva trenger man for å lage en minimal blockchain
+	En definisjon av en block
+	En genesis-block
+    En oppgave å løse (POW) og en belønning
+	En consensus-algoritme
+
+Valg
+    Den som forger må si ifra til alle andre
+    

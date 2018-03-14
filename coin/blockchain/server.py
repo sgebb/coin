@@ -71,16 +71,19 @@ def full_chain():
 
 @app.route('/chain', methods=['POST'])
 def replace_chain():
-    newChain = request.get_json()
+    global newChainAppeared
+    values = request.get_json()
+    newChain = values['chain']
 
-    if newChain[0] is not blockchain.chain:
-        return "Wrong genesis", 400
     if len(newChain) <= len(blockchain.chain):
         return "Already have a longer or equal length chain", 400
     if not coin.valid_chain(newChain):
         return "Proposed chain not valid", 400
+    if newChain[0] != blockchain.genesis:
+        return "Wrong genesis", 400
 
     blockchain.chain = newChain
+    newChainAppeared = True
     return "Chain accepted", 200
 
 #tar inn liste med noder - hver har addresse?
