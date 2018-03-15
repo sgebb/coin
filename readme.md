@@ -24,22 +24,26 @@ Engangspassord, sjekke om større, return true eller false, må ha nytt signert 
 
 #Presentere:
 
-Hva er blockchain
-	Kjede med blocks
-	Block: {transaksjoner[], index, timestamp, proof, previous_hash}
-	Transaksjon: {avsender, mottaker, mengde, timestamp}
+##Hva er blockchain
+	-Kjede med blocks, lever i minnet til alle noder.
+	-Mye til felles med git
+	-Block: {transaksjoner[], index, timestamp, proof, previous_hash}
+	-Transaksjon: {avsender, mottaker, mengde, timestamp}
 
 
-Hva får man med blockchain
+##Hva får man med blockchain
 	-Immutabilitet - umulig å endre historikk
 	-Distribuert - ingen server
     -Trustless
 
-Hva trenger man for å lage en minimal blockchain
+##Hva trenger man for å lage en minimal blockchain
 	-En definisjon av en block
 	-En genesis-block
     -En oppgave å løse (POW) og en belønning
 	-En consensus-algoritme
+    -En måte å være klient og server på samtidig
 
-Valg
-    Den som forger må si ifra til alle andre
+##Valg
+    -Den som forger må si ifra til alle andre
+    -Den som lager en transaksjon må si ifra til alle andre
+    -Vinnerens transaksjoner blir tatt med, alt annet går ut.

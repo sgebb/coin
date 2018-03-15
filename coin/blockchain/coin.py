@@ -13,7 +13,7 @@ class BlockChain(object):
     def new_block(self, proof, previous_hash=None):
         block = {
             'index': len(self.chain) + 1,
-            'timestamp': 0,
+            'timestamp': time(),
             'transactions': self.current_transactions,
             'proof': proof,
             'previous_hash': previous_hash or hash(self.chain[-1])
