@@ -20,7 +20,11 @@ TODO:
 
 Real usecase: Kan man gjøre finansieringsbevis/lån-godtatt på kjeden? Verifikasjon av en sum over X uten å avsløre hvor mye?
 Engangspassord, sjekke om større, return true eller false, må ha nytt signert passord for hver sjekk. Banken legger inn hvor mye penger du har, du lager engangspassord for å sjekke likviditet. Varighet på finansieringsbevis fram til X dager?
-
+Evt:
+Computas-BONG-chain
+Adresser fra computasappen? 
+Putt bongene i genesis
+Verifiser bong-transaksjoner, ingen rewards
 
 # Presentere:
 
@@ -47,3 +51,14 @@ Engangspassord, sjekke om større, return true eller false, må ha nytt signert 
     -Den som forger må si ifra til alle andre
     -Den som lager en transaksjon må si ifra til alle andre
     -Vinnerens transaksjoner blir tatt med, alt annet går ut.
+
+
+# Flyt for å dele noder
+Ny node, kjenner til en som er connected
+Send en post med tom liste til den ene
+Den svarer med alle sine noder og lengden på chainen - så kan man spørre om hele om den er lenger?
+Du legger til halvparten av nodene
+
+Hvert minutt:
+Post dine noder til fem av nodene
+Hvis noen ikke svarer - dropp dem

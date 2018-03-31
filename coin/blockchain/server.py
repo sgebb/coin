@@ -52,11 +52,17 @@ def new_transaction():
     if not all(k in values for k in required):
         return "Missing values", 400
 
-    #check valid transaction
+    #values
+    sender = values['sender']
+    recipient = values['recipient']
+    amount = values['amount']
 
+    #check valid transaction
+    if not blockchain.valid_transaction(sender, recipient, amount):
+        return "invalid transaction", 400
 
     #add to current_block
-    index = blockchain.new_transaction(values['sender'], values['recipient'], values['amount'])
+    index = blockchain.new_transaction(sender, recipient,amount)
 
     response = {'message' : f"Transaction will be added to Block {index}"}
     return jsonify(response), 201
@@ -89,7 +95,9 @@ def replace_chain():
 #tar inn liste med noder - hver har addresse?
 @app.route('/nodes', methods=['POST'])
 def addNodes():
-    newNodes = request.get_json().get('nodes')
+    values = request.get_json()
+    newNodes = values['nodes']
+    
     if newNodes is None:
         return "Error - want list of nodes", 400
 
